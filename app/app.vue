@@ -1,9 +1,5 @@
 <template>
-  <div>
-    <!-- app.vue -->
+  <NuxtLayout>
     <NuxtPage />
-  </div>
+  </NuxtLayout>
 </template>
-
-<script setup lang="ts">
-</script>

@@ -1,3 +1,0 @@
-# faq
-
-Auto-generated content.

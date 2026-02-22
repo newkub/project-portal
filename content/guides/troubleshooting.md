@@ -1,3 +1,0 @@
-# troubleshooting
-
-Auto-generated content.

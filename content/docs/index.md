@@ -1,3 +1,0 @@
-# index
-
-Auto-generated content.

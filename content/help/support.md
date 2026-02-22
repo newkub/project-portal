@@ -1,3 +1,0 @@
-# support
-
-Auto-generated content.

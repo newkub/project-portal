@@ -1,197 +1,299 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useNow, useDateFormat } from '@vueuse/core'
-
-const now = useNow()
-const formattedDate = useDateFormat(now, 'YYYY-MM-DD HH:mm:ss')
-
-const stats = ref([
-  { label: 'โปรเจกต์ทั้งหมด', value: '12', icon: 'i-heroicons-folder', color: 'text-blue-600' },
-  { label: 'Issues เปิด', value: '24', icon: 'i-heroicons-exclamation-circle', color: 'text-red-600' },
-  { label: 'Pull Requests', value: '8', icon: 'i-heroicons-code-bracket', color: 'text-green-600' },
-  { label: 'สมาชิก', value: '6', icon: 'i-heroicons-users', color: 'text-purple-600' }
-])
-
-const recentProjects = ref([
-  { name: 'rust-packages', description: 'Rust packages monorepo', stars: 45, forks: 12, language: 'Rust' },
-  { name: 'project-web', description: 'Nuxt.js web application', stars: 23, forks: 8, language: 'TypeScript' },
-  { name: 'ai-platform', description: 'AI platform services', stars: 67, forks: 15, language: 'Python' }
-])
-
-const recentActivity = ref([
-  { type: 'push', message: 'feat: add new dashboard component', repo: 'project-web', time: '2 นาทีที่แล้ว' },
-  { type: 'issue', message: 'Fix navigation bug on mobile', repo: 'rust-packages', time: '15 นาทีที่แล้ว' },
-  { type: 'pr', message: 'Update dependencies to latest', repo: 'ai-platform', time: '1 ชั่วโมงที่แล้ว' },
-  { type: 'merge', message: 'Merge branch feat/auth', repo: 'project-web', time: '3 ชั่วโมงที่แล้ว' }
-])
-
-const getActivityIcon = (type: string) => {
-  const icons: Record<string, string> = {
-    push: 'i-heroicons-arrow-up-circle',
-    issue: 'i-heroicons-exclamation-triangle',
-    pr: 'i-heroicons-code-bracket-square',
-    merge: 'i-heroicons-merge'
-  }
-  return icons[type] || 'i-heroicons-circle-stack'
-}
-
-const getActivityColor = (type: string) => {
-  const colors: Record<string, string> = {
-    push: 'text-green-600',
-    issue: 'text-red-600',
-    pr: 'text-blue-600',
-    merge: 'text-purple-600'
-  }
-  return colors[type] || 'text-gray-600'
-}
-
-const recentActivityRecord: Record<string, any> = {
-  push: { message: 'feat: add new dashboard component', repo: 'project-web', time: '2 นาทีที่แล้ว' },
-  issue: { message: 'Fix navigation bug on mobile', repo: 'rust-packages', time: '15 นาทีที่แล้ว' },
-  pr: { message: 'Update dependencies to latest', repo: 'ai-platform', time: '1 ชั่วโมงที่แล้ว' },
-  merge: { message: 'Merge branch feat/auth', repo: 'project-web', time: '3 ชั่วโมงที่แล้ว' }
-}
-</script>
-
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center space-x-4">
-            <h1 class="text-2xl font-bold text-gray-900">Project Hub</h1>
-            <span class="text-sm text-gray-500">{{ formattedDate }}</span>
+  <div class="space-y-6">
+    <!-- Project Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Project Repository</h2>
+          <p class="text-gray-600 mt-1">Main codebase and source files</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+            <Icon name="lucide:git-branch" class="w-4 h-4 mr-2 inline-block" />
+            main
+          </button>
+          <button 
+            @click="refreshFiles"
+            :disabled="loading"
+            class="px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <Icon name="lucide:refresh-cw" :class="{ 'animate-spin': loading }" class="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Files</p>
+            <p class="text-2xl font-bold text-gray-900">{{ stats.total }}</p>
           </div>
-          <div class="flex items-center space-x-4">
-            <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-              สร้างโปรเจกต์ใหม่
+          <Icon name="lucide:files" class="w-8 h-8 text-blue-500" />
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Directories</p>
+            <p class="text-2xl font-bold text-gray-900">{{ stats.directories }}</p>
+          </div>
+          <Icon name="lucide:folder" class="w-8 h-8 text-yellow-500" />
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Code Files</p>
+            <p class="text-2xl font-bold text-green-600">{{ stats.files }}</p>
+          </div>
+          <Icon name="lucide:code" class="w-8 h-8 text-green-500" />
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Last Updated</p>
+            <p class="text-sm font-bold text-gray-900">{{ lastUpdated }}</p>
+          </div>
+          <Icon name="lucide:clock" class="w-8 h-8 text-gray-500" />
+        </div>
+      </div>
+    </div>
+
+    <!-- File Explorer -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="border-b border-gray-200 px-6 py-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-medium text-gray-900">Files</h3>
+          <div class="flex items-center space-x-2">
+            <input 
+              v-model="searchQuery"
+              type="text" 
+              placeholder="Search files..."
+              class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+            <button class="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+              <Icon name="lucide:plus" class="w-4 h-4 mr-1 inline-block" />
+              Add file
             </button>
-            <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-              U
-            </div>
           </div>
         </div>
       </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Stats Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div v-for="stat in stats" :key="stat.label" class="bg-white rounded-lg shadow p-6">
-          <div class="flex items-center">
-            <div :class="[stat.icon, stat.color, 'text-2xl mr-4']"></div>
-            <div>
-              <p class="text-sm font-medium text-gray-600">{{ stat.label }}</p>
-              <p class="text-2xl font-bold text-gray-900">{{ stat.value }}</p>
-            </div>
-          </div>
-        </div>
+      
+      <div v-if="loading" class="p-8 text-center">
+        <Icon name="lucide:loader-2" class="w-8 h-8 animate-spin mx-auto text-blue-500" />
+        <p class="mt-2 text-gray-600">Loading files...</p>
       </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Recent Projects -->
-        <div class="lg:col-span-2">
-          <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-lg font-medium text-gray-900">โปรเจกต์ล่าสุด</h2>
-            </div>
-            <div class="divide-y divide-gray-200">
-              <div v-for="project in recentProjects" :key="project.name" class="p-6 hover:bg-gray-50">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-2">
-                      <h3 class="text-sm font-medium text-gray-900 hover:text-blue-600 cursor-pointer">
-                        {{ project.name }}
-                      </h3>
-                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        {{ project.language }}
-                      </span>
-                    </div>
-                    <p class="mt-1 text-sm text-gray-600">{{ project.description }}</p>
-                    <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                      <span class="flex items-center">
-                        <i class="i-heroicons-star mr-1"></i>
-                        {{ project.stars }}
-                      </span>
-                      <span class="flex items-center">
-                        <i class="i-heroicons-fork mr-1"></i>
-                        {{ project.forks }}
-                      </span>
-                    </div>
-                  </div>
-                  <button class="ml-4 px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50">
-                    ดูรายละเอียด
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
-              <button class="text-sm font-medium text-blue-600 hover:text-blue-800">
-                ดูโปรเจกต์ทั้งหมด →
+      
+      <div v-else class="p-6">
+        <div class="space-y-1">
+          <div v-for="file in filteredFiles" :key="file.path" class="flex items-center p-2 hover:bg-gray-50 rounded-md cursor-pointer group" @click="selectFile(file)">
+            <Icon 
+              :name="file.type === 'directory' ? 'lucide:folder' : 'lucide:file'" 
+              :class="file.type === 'directory' ? 'w-4 h-4 mr-2 text-blue-500' : 'w-4 h-4 mr-2 text-gray-400'"
+            />
+            <span class="text-sm font-medium flex-1">{{ file.name }}</span>
+            <div class="flex items-center space-x-2 text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span v-if="file.type === 'file' && file.size">{{ formatFileSize(file.size) }}</span>
+              <span v-if="file.modified">{{ formatDate(file.modified) }}</span>
+              <button 
+                @click.stop="viewFile(file)"
+                class="p-1 text-gray-400 hover:text-gray-600"
+              >
+                <Icon name="lucide:eye" class="w-3 h-3" />
+              </button>
+              <button 
+                @click.stop="editFile(file)"
+                class="p-1 text-gray-400 hover:text-gray-600"
+              >
+                <Icon name="lucide:edit" class="w-3 h-3" />
               </button>
             </div>
           </div>
         </div>
-
-        <!-- Recent Activity -->
-        <div class="lg:col-span-1">
-          <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-lg font-medium text-gray-900">กิจกรรมล่าสุด</h2>
-            </div>
-            <div class="divide-y divide-gray-200">
-              <div v-for="activity in recentActivity" :key="activity.message" class="p-4">
-                <div class="flex items-start space-x-3">
-                  <div :class="[getActivityIcon(activity.type), getActivityColor(activity.type), 'text-xl mt-0.5']"></div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm text-gray-900 truncate">{{ activity.message }}</p>
-                    <p class="text-xs text-gray-500 mt-1">
-                      {{ activity.repo }} • {{ activity.time }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
-              <button class="text-sm font-medium text-blue-600 hover:text-blue-800">
-                ดูกิจกรรมทั้งหมด →
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
+    </div>
 
-      <!-- Quick Actions -->
-      <div class="mt-8 bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-medium text-gray-900">การกระทำด่วน</h2>
-        </div>
-        <div class="p-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button class="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-              <i class="i-heroicons-plus-circle text-blue-600 text-xl mb-2"></i>
-              <h3 class="text-sm font-medium text-gray-900">สร้างโปรเจกต์ใหม่</h3>
-              <p class="text-xs text-gray-500 mt-1">เริ่มต้นโปรเจกต์ใหม่</p>
+    <!-- Code Preview -->
+    <div v-if="selectedFile" class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="border-b border-gray-200 px-6 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <Icon 
+              :name="selectedFile.type === 'directory' ? 'lucide:folder' : 'lucide:file'" 
+              :class="selectedFile.type === 'directory' ? 'w-4 h-4 text-blue-500' : 'w-4 h-4 text-gray-400'"
+            />
+            <h3 class="text-lg font-medium text-gray-900">{{ selectedFile.name }}</h3>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button 
+              @click="copyFileContent"
+              class="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <Icon name="lucide:copy" class="w-4 h-4 mr-1 inline-block" />
+              Copy
             </button>
-            <button class="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-              <i class="i-heroicons-document-plus text-green-600 text-xl mb-2"></i>
-              <h3 class="text-sm font-medium text-gray-900">สร้าง Issue</h3>
-              <p class="text-xs text-gray-500 mt-1">รายงานปัญหาหรือข้อเสนอแนะ</p>
+            <button 
+              @click="downloadFile"
+              class="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <Icon name="lucide:download" class="w-4 h-4 mr-1 inline-block" />
+              Download
             </button>
-            <button class="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-              <i class="i-heroicons-arrow-right-on-rectangle text-purple-600 text-xl mb-2"></i>
-              <h3 class="text-sm font-medium text-gray-900">สร้าง Pull Request</h3>
-              <p class="text-xs text-gray-500 mt-1">ส่งโค้ดสำหรับ review</p>
-            </button>
-            <button class="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-              <i class="i-heroicons-user-plus text-orange-600 text-xl mb-2"></i>
-              <h3 class="text-sm font-medium text-gray-900">เชิญสมาชิก</h3>
-              <p class="text-xs text-gray-500 mt-1">เพิ่มผู้ร่วมทีมใหม่</p>
+            <button 
+              @click="closePreview"
+              class="p-1 text-gray-400 hover:text-gray-600"
+            >
+              <Icon name="lucide:x" class="w-4 h-4" />
             </button>
           </div>
         </div>
       </div>
-    </main>
+      <div class="p-6">
+        <div v-if="selectedFile.type === 'directory'" class="text-center py-8">
+          <Icon name="lucide:folder-open" class="w-12 h-12 mx-auto text-blue-500" />
+          <p class="mt-2 text-gray-600">Directory: {{ selectedFile.name }}</p>
+          <p v-if="selectedFile.children" class="text-sm text-gray-500 mt-1">
+            {{ selectedFile.children.length }} items
+          </p>
+        </div>
+        <div v-else class="bg-gray-50 rounded-md p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-gray-500">{{ selectedFile.path }}</span>
+            <span v-if="selectedFile.size" class="text-xs text-gray-500">{{ formatFileSize(selectedFile.size) }}</span>
+          </div>
+          <pre class="text-gray-700 text-sm overflow-x-auto whitespace-pre-wrap"><code>{{ selectedFile.content }}</code></pre>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<script setup lang="ts">
+// SEO Meta
+useHead({
+	title: "Code - Project Portal",
+	meta: [
+		{ name: "description", content: "View and manage project source code" },
+	],
+});
+
+// State
+const loading = ref(false);
+const searchQuery = ref("");
+const files = ref<any[]>([]);
+const selectedFile = ref<any>(null);
+const stats = ref({
+	total: 0,
+	directories: 0,
+	files: 0,
+});
+
+// Computed
+const filteredFiles = computed(() => {
+	if (!searchQuery.value) return files.value;
+	return files.value.filter(
+		(file) =>
+			file.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+			file.path.toLowerCase().includes(searchQuery.value.toLowerCase()),
+	);
+});
+
+const lastUpdated = computed(() => {
+	if (files.value.length === 0) return "N/A";
+	const latestFile = files.value
+		.filter((f) => f.modified)
+		.sort(
+			(a, b) => new Date(b.modified).getTime() - new Date(a.modified).getTime(),
+		)[0];
+
+	if (!latestFile) return "N/A";
+	return formatDate(latestFile.modified);
+});
+
+// Methods
+const fetchFiles = async () => {
+	loading.value = true;
+	try {
+		const response = await $fetch("/api/files");
+		files.value = response.files;
+		stats.value = response.stats;
+	} catch (error) {
+		console.error("Failed to fetch files:", error);
+	} finally {
+		loading.value = false;
+	}
+};
+
+const refreshFiles = () => {
+	fetchFiles();
+};
+
+const selectFile = (file: any) => {
+	selectedFile.value = file;
+};
+
+const viewFile = (file: any) => {
+	selectedFile.value = file;
+};
+
+const editFile = (file: any) => {
+	// Navigate to edit page or open editor
+	console.log("Edit file:", file.path);
+};
+
+const copyFileContent = async () => {
+	if (selectedFile.value?.content) {
+		try {
+			await navigator.clipboard.writeText(selectedFile.value.content);
+			// Show success message
+		} catch (error) {
+			console.error("Failed to copy:", error);
+		}
+	}
+};
+
+const downloadFile = () => {
+	if (selectedFile.value?.content) {
+		const blob = new Blob([selectedFile.value.content], { type: "text/plain" });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = selectedFile.value.name;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+};
+
+const closePreview = () => {
+	selectedFile.value = null;
+};
+
+const formatFileSize = (bytes: number) => {
+	if (bytes === 0) return "0 B";
+	const k = 1024;
+	const sizes = ["B", "KB", "MB", "GB"];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+	return parseFloat((bytes / k ** i).toFixed(1)) + " " + sizes[i];
+};
+
+const formatDate = (dateString: string) => {
+	const date = new Date(dateString);
+	const now = new Date();
+	const diffTime = Math.abs(now.getTime() - date.getTime());
+	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+	if (diffDays === 1) return "yesterday";
+	if (diffDays < 7) return `${diffDays} days ago`;
+	if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+	return date.toLocaleDateString();
+};
+
+// Lifecycle
+onMounted(() => {
+	fetchFiles();
+});
+</script>

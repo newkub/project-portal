@@ -1,3 +1,0 @@
-# authentication
-
-Auto-generated content.

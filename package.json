@@ -1,26 +1,33 @@
 {
   "name": "project-portal",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "nuxt typecheck"
+    "lint": "biome lint --write && oxlint --fix --type-aware && tsc --noEmit",
+    "format": "biome format --write"
   },
   "dependencies": {
-    "@nuxt/icon": "^2.2.1",
     "@vueuse/core": "^14.2.1",
     "@vueuse/nuxt": "^14.2.1",
-    "markdown-it": "^14.1.1",
-    "nuxt": "^4.3.1",
-    "vue-macros": "^3.1.2"
+    "nuxt": "^3.8.0",
+    "vue": "^3.3.8",
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
-    "@types/markdown-it": "^14.1.2",
+    "@biomejs/biome": "^2.4.4",
+    "@nuxt/devtools": "latest",
+    "@types/node": "^25.3.0",
     "@unocss/nuxt": "^66.6.0",
+    "oxlint": "^1.49.0",
+    "oxlint-tsgolint": "^0.14.2",
+    "typescript": "^5.9.3",
     "unocss": "^66.6.0"
+  },
+  "overrides": {
+    "vite": "npm:rolldown-vite@latest"
   }
 }

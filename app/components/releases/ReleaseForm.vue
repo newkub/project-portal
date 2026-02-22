@@ -1,1 +1,0 @@
-<template>`n  <div>`n    <!-- ReleaseForm.vue -->`n  </div>`n</template>`n`n<script setup lang="ts">`n</script>`n
