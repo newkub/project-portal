@@ -1,0 +1,26 @@
+{
+  "name": "project-portal",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@nuxt/icon": "^2.2.1",
+    "@vueuse/core": "^14.2.1",
+    "@vueuse/nuxt": "^14.2.1",
+    "markdown-it": "^14.1.1",
+    "nuxt": "^4.3.1",
+    "vue-macros": "^3.1.2"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@unocss/nuxt": "^66.6.0",
+    "unocss": "^66.6.0"
+  }
+}

@@ -1,0 +1,1 @@
+<template>`n  <div>`n    <!-- CapacityView.vue -->`n  </div>`n</template>`n`n<script setup lang="ts">`n</script>`n

@@ -1,0 +1,1 @@
+<template>`n  <div>`n    <!-- FileExplorer.vue -->`n  </div>`n</template>`n`n<script setup lang="ts">`n</script>`n

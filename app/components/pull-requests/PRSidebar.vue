@@ -1,0 +1,1 @@
+<template>`n  <div>`n    <!-- PRSidebar.vue -->`n  </div>`n</template>`n`n<script setup lang="ts">`n</script>`n
