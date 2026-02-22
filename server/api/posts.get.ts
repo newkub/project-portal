@@ -7,16 +7,16 @@ const posts = [
     authorId: 1,
     status: 'published',
     createdAt: '2024-01-15T10:30:00Z',
-    updatedAt: '2024-01-15T10:30:00Z'
+    updatedAt: '2024-01-16T14:20:00Z'
   },
   {
     id: 2,
     title: 'TypeScript Best Practices',
-    content: 'TypeScript provides static typing for JavaScript applications...',
+    content: 'TypeScript provides static typing for JavaScript...',
     authorId: 2,
     status: 'published',
-    createdAt: '2024-01-16T14:20:00Z',
-    updatedAt: '2024-01-16T14:20:00Z'
+    createdAt: '2024-01-16T09:15:00Z',
+    updatedAt: '2024-01-17T11:30:00Z'
   },
   {
     id: 3,
@@ -29,7 +29,7 @@ const posts = [
   }
 ];
 
-export default defineEventHandler(async (event: H3Event) => {
+export default eventHandler(async (event: H3Event) => {
   const query = getQuery(event);
 
   // Filter by status if provided

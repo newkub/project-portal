@@ -226,6 +226,19 @@
 </template>
 
 <script setup lang="ts">
+// Vue/Nuxt imports
+import { ref, computed, onMounted, watch } from 'vue'
+
+// VueUse imports
+import { 
+  useLocalStorage, 
+  useClipboard, 
+  useDateFormat, 
+  useWindowSize, 
+  useDocumentVisibility, 
+  useIdle 
+} from '@vueuse/core'
+
 // SEO Meta
 const route = useRoute();
 const taskId = route.params.id;
@@ -247,16 +260,16 @@ const savedProgress = useLocalStorage(`task-${taskId}-progress`, 0);
 const savedStatus = useLocalStorage(`task-${taskId}-status`, '');
 
 // ใช้ VueUse useClipboard สำหรับคัดลอกข้อมูล
-const { copy, copied } = useClipboard();
+const { copy } = useClipboard();
 
 // ใช้ VueUse useDateFormat สำหรับจัดรูปแบบวันที่
-const { format: formatDate } = useDateFormat(new Date(), 'YYYY-MM-DD HH:mm:ss');
+const formatDate = useDateFormat(new Date(), 'YYYY-MM-DD HH:mm:ss');
 
 // Methods
 const fetchTask = async () => {
 	try {
 		// In a real app, fetch from API
-		const response = await $fetch("/api/tasks");
+		const response = await $fetch("/api/tasks") as any;
 		const allTasks = [
 			...response.todoTasks,
 			...response.inProgressTasks,
@@ -404,7 +417,7 @@ onMounted(() => {
 });
 
 // Watch for visibility changes to refresh data when user returns
-watch(visibility, (visible) => {
+watch(visibility, (visible: string) => {
 	if (visible === 'visible' && !loading.value) {
 		// Refresh data when user returns to the tab
 		void fetchTask();
