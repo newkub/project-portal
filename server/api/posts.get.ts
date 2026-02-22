@@ -29,7 +29,7 @@ const posts = [
   }
 ];
 
-export default eventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const query = getQuery(event);
 
   // Filter by status if provided

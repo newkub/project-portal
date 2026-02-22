@@ -22,7 +22,7 @@
             <h1 class="text-2xl font-bold text-gray-900">{{ task?.title }}</h1>
             <div class="flex items-center space-x-2 mt-1">
               <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">#{{ task?.id }}</span>
-              <span class="text-sm text-gray-500">Created {{ formatDate(task?.createdAt) }}</span>
+              <span class="text-sm text-gray-500">Created {{ formatDateRelative(task?.createdAt) }}</span>
               <span class="text-sm text-gray-500">Due {{ task?.dueDate }}</span>
             </div>
           </div>
@@ -177,11 +177,11 @@
             </div>
             <div>
               <span class="text-sm font-medium text-gray-700">Created:</span>
-              <span class="ml-2 text-sm text-gray-900">{{ formatDate(task?.createdAt) }}</span>
+              <span class="text-sm text-gray-900">{{ formatDateRelative(task?.createdAt) }}</span>
             </div>
             <div>
               <span class="text-sm font-medium text-gray-700">Updated:</span>
-              <span class="ml-2 text-sm text-gray-900">{{ formatDate(task?.updatedAt) }}</span>
+              <span class="text-sm text-gray-900">{{ formatDateRelative(task?.updatedAt) }}</span>
             </div>
           </div>
         </div>

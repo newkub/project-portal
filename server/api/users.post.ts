@@ -1,7 +1,7 @@
 // Mock data for creating users
 let nextUserId = 4;
 
-export default eventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
   // Validate required fields
